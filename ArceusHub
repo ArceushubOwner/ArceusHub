@@ -1,7 +1,6 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
 local screenGui = Instance.new("ScreenGui")
@@ -17,6 +16,10 @@ frame.BackgroundColor3 = Color3.fromRGB(10, 20, 50)
 frame.BorderSizePixel = 0
 frame.Parent = screenGui
 
+local cornerFrame = Instance.new("UICorner")
+cornerFrame.CornerRadius = UDim.new(0, 10)
+cornerFrame.Parent = frame
+
 local scroll = Instance.new("ScrollingFrame")
 scroll.Size = UDim2.new(1,0,1,0)
 scroll.CanvasSize = UDim2.new(0,0,0,0)
@@ -29,7 +32,6 @@ uiList.Padding = UDim.new(0,5)
 uiList.SortOrder = Enum.SortOrder.LayoutOrder
 uiList.Parent = scroll
 
--- Atualiza CanvasSize
 local function updateCanvas()
 	scroll.CanvasSize = UDim2.new(0,0,0,uiList.AbsoluteContentSize.Y + 10)
 end
@@ -39,7 +41,7 @@ uiList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvas)
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,0,0,30)
 title.BackgroundTransparency = 1
-title.Text = "Arceus Hub"
+title.Text = "👾ArceusHub👾"
 title.TextColor3 = Color3.new(1,1,1)
 title.Font = Enum.Font.SourceSansBold
 title.TextSize = 18
@@ -59,49 +61,41 @@ local function makeButton(text)
 	return b
 end
 
--- Minimizar / bola colorida
+-- Minimizar / retângulo
 local minimizeBtn = Instance.new("TextButton")
 minimizeBtn.Size = UDim2.new(0, 25, 0, 25)
 minimizeBtn.Position = UDim2.new(1, -30, 0, 5)
 minimizeBtn.BackgroundColor3 = Color3.fromRGB(20,40,80)
-minimizeBtn.Text = "-"
+minimizeBtn.Text = "X"
 minimizeBtn.TextColor3 = Color3.new(1,1,1)
 minimizeBtn.Font = Enum.Font.SourceSansBold
 minimizeBtn.TextSize = 18
 minimizeBtn.Parent = frame
 
-local ballButton = Instance.new("ImageButton")
-ballButton.Size = UDim2.new(0, 50, 0, 50)
-ballButton.Position = UDim2.new(0, 20, 1, -70)
-ballButton.BackgroundColor3 = Color3.fromRGB(10,20,50)
-ballButton.Visible = false
-ballButton.Parent = screenGui
-ballButton.BorderSizePixel = 0
-ballButton.Image = ""
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(1,0)
-corner.Parent = ballButton
+local miniFrame = Instance.new("TextButton")
+miniFrame.Size = UDim2.new(0, 140, 0, 40)
+miniFrame.Position = UDim2.new(0.05, 0, 0.1, 0)
+miniFrame.BackgroundColor3 = Color3.fromRGB(20,40,80)
+miniFrame.Text = "👾ArceusHub👾"
+miniFrame.TextColor3 = Color3.new(1,1,1)
+miniFrame.Font = Enum.Font.SourceSansBold
+miniFrame.TextSize = 16
+miniFrame.Visible = false
+miniFrame.Parent = screenGui
 
-local colors = {Color3.fromRGB(10,20,50), Color3.fromRGB(255,105,180), Color3.fromRGB(0,0,0), Color3.fromRGB(128,0,128), Color3.fromRGB(255,255,0), Color3.fromRGB(255,165,0)}
-spawn(function()
-	local index = 1
-	while true do
-		if ballButton.Visible then
-			ballButton.BackgroundColor3 = colors[index]
-			index = index + 1
-			if index > #colors then index = 1 end
-		end
-		wait(1)
-	end
-end)
+local miniCorner = Instance.new("UICorner")
+miniCorner.CornerRadius = UDim.new(0,10)
+miniCorner.Parent = miniFrame
 
+-- Função dos botões
 minimizeBtn.MouseButton1Click:Connect(function()
 	frame.Visible = false
-	ballButton.Visible = true
+	miniFrame.Visible = true
 end)
-ballButton.MouseButton1Click:Connect(function()
+
+miniFrame.MouseButton1Click:Connect(function()
 	frame.Visible = true
-	ballButton.Visible = false
+	miniFrame.Visible = false
 end)
 
 -- Drag para mobile e PC
@@ -141,7 +135,7 @@ local function makeDraggable(guiObject)
 end
 
 makeDraggable(frame)
-makeDraggable(ballButton)
+makeDraggable(miniFrame)
 
 -- Estados
 local states = {infinite=false, noclip=false, god=false, speed=16, esp=false}
@@ -154,7 +148,7 @@ local btnFly = makeButton("Fly Script")
 local btnBringAll = makeButton("Bring All")
 local btnESP = makeButton("Toggle ESP")
 
--- TextBox para Teleport (substitui Swim)
+-- Teleport
 local tpBox = Instance.new("TextBox")
 tpBox.Size = UDim2.new(1, -20, 0, 28)
 tpBox.BackgroundColor3 = Color3.fromRGB(60,60,80)
@@ -183,7 +177,7 @@ btnTP.MouseButton1Click:Connect(function()
 	end
 end)
 
--- WalkSpeed TextBox (fica abaixo de todos)
+-- WalkSpeed
 local speedBox = Instance.new("TextBox")
 speedBox.Size = UDim2.new(1, -20, 0, 28)
 speedBox.BackgroundColor3 = Color3.fromRGB(60,60,80)
