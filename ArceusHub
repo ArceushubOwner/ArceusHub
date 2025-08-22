@@ -1,4 +1,3 @@
--- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -19,10 +18,20 @@ frame.Position = UDim2.new(0.05,0,0.1,0)
 frame.BackgroundColor3 = Color3.fromRGB(10,20,50)
 frame.BorderSizePixel = 0
 frame.Parent = screenGui
-
 local cornerFrame = Instance.new("UICorner")
 cornerFrame.CornerRadius = UDim.new(0,10)
 cornerFrame.Parent = frame
+
+-- Título
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0,30)
+title.Position = UDim2.new(0,0,0,0)
+title.BackgroundTransparency = 1
+title.Text = "👾ArceusHub👾"
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 18
+title.Parent = frame
 
 -- Abas
 local tabs = {"Main","Extras"}
@@ -31,8 +40,8 @@ local tabButtons = {}
 local contentFrames = {}
 
 local tabFrame = Instance.new("Frame")
-tabFrame.Size = UDim2.new(0, 60, 1, 0)
-tabFrame.Position = UDim2.new(0,0,0,0)
+tabFrame.Size = UDim2.new(0,60,1,-30) -- altura descontando título
+tabFrame.Position = UDim2.new(0,0,0,30)
 tabFrame.BackgroundTransparency = 1
 tabFrame.Parent = frame
 
@@ -49,8 +58,8 @@ for i,tabName in ipairs(tabs) do
 	tabButtons[tabName] = btn
 	
 	local content = Instance.new("ScrollingFrame")
-	content.Size = UDim2.new(1,-60,1,0)
-	content.Position = UDim2.new(0,60,0,0)
+	content.Size = UDim2.new(1,-60,1,-30)
+	content.Position = UDim2.new(0,60,0,30)
 	content.BackgroundTransparency = 1
 	content.ScrollBarThickness = 8
 	content.Visible = (tabName==currentTab)
@@ -73,7 +82,7 @@ end
 -- Função para criar botões
 local function makeButton(tab,text)
 	local b = Instance.new("TextButton")
-	b.Size = UDim2.new(1,-10,0,30)
+	b.Size = UDim2.new(1,-20,0,30)
 	b.BackgroundColor3 = Color3.fromRGB(50,50,70)
 	b.TextColor3 = Color3.fromRGB(255,255,255)
 	b.Font = Enum.Font.SourceSans
@@ -83,113 +92,16 @@ local function makeButton(tab,text)
 	return b
 end
 
--- MiniFrame
-local miniFrame = Instance.new("TextButton")
-miniFrame.Size = UDim2.new(0,120,0,40)
-miniFrame.Position = UDim2.new(0.05,0,0.1,0)
-miniFrame.BackgroundColor3 = Color3.fromRGB(20,40,80)
-miniFrame.Text = "ArceusHub"
-miniFrame.TextColor3 = Color3.new(1,1,1)
-miniFrame.Font = Enum.Font.SourceSansBold
-miniFrame.TextSize = 16
-miniFrame.Visible = false
-miniFrame.Parent = screenGui
-local miniCorner = Instance.new("UICorner")
-miniCorner.CornerRadius = UDim.new(0,10)
-miniCorner.Parent = miniFrame
-
--- Bolinha
-local ballButton = Instance.new("ImageButton")
-ballButton.Size = UDim2.new(0,50,0,50)
-ballButton.Position = UDim2.new(0,20,1,-70)
-ballButton.BackgroundColor3 = Color3.fromRGB(10,20,50)
-ballButton.BorderSizePixel = 0
-ballButton.Image = "rbxassetid://132606146905925"
-ballButton.Visible = false
-ballButton.Parent = screenGui
-local cornerBall = Instance.new("UICorner")
-cornerBall.CornerRadius = UDim.new(1,0)
-cornerBall.Parent = ballButton
-
--- Botões minimizar e fechar
-local minimizeBtn = Instance.new("TextButton")
-minimizeBtn.Size = UDim2.new(0,25,0,25)
-minimizeBtn.Position = UDim2.new(1,-60,0,5)
-minimizeBtn.BackgroundColor3 = Color3.fromRGB(20,40,80)
-minimizeBtn.Text = "-"
-minimizeBtn.TextColor3 = Color3.new(1,1,1)
-minimizeBtn.Font = Enum.Font.SourceSansBold
-minimizeBtn.TextSize = 18
-minimizeBtn.Parent = frame
-
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0,25,0,25)
-closeBtn.Position = UDim2.new(1,-30,0,5)
-closeBtn.BackgroundColor3 = Color3.fromRGB(80,20,20)
-closeBtn.Text = "X"
-closeBtn.TextColor3 = Color3.new(1,1,1)
-closeBtn.Font = Enum.Font.SourceSansBold
-closeBtn.TextSize = 18
-closeBtn.Parent = frame
-
--- Funções clique com animação Tween
-local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-minimizeBtn.MouseButton1Click:Connect(function()
-	TweenService:Create(frame, tweenInfo, {Size=UDim2.new(0,0,0,0), Position=UDim2.new(0,frame.Position.X.Offset,0,frame.Position.Y.Offset)}):Play()
-	wait(0.3)
-	frame.Visible = false
-	ballButton.Visible = true
-end)
-ballButton.MouseButton1Click:Connect(function()
-	ballButton.Visible = false
-	frame.Visible = true
-	TweenService:Create(frame, tweenInfo, {Size=UDim2.new(0,250,0,380)}):Play()
-end)
-closeBtn.MouseButton1Click:Connect(function()
-	TweenService:Create(frame, tweenInfo, {Size=UDim2.new(0,120,0,40)}):Play()
-	wait(0.3)
-	frame.Visible = false
-	miniFrame.Visible = true
-end)
-miniFrame.MouseButton1Click:Connect(function()
-	miniFrame.Visible = false
-	frame.Visible = true
-	TweenService:Create(frame, tweenInfo, {Size=UDim2.new(0,250,0,380)}):Play()
-end)
-
--- Drag
-local function makeDraggable(gui)
-	local dragging=false
-	local dragStart, startPos
-	local dragInput
-	gui.InputBegan:Connect(function(input)
-		if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
-			dragging=true
-			dragStart=input.Position
-			startPos=gui.Position
-			input.Changed:Connect(function()
-				if input.UserInputState==Enum.UserInputState.End then dragging=false end
-			end)
-		end
-	end)
-	gui.InputChanged:Connect(function(input)
-		if input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch then
-			dragInput=input
-		end
-	end)
-	RunService.RenderStepped:Connect(function()
-		if dragging and dragInput then
-			local delta=dragInput.Position-dragStart
-			gui.Position=UDim2.new(0,math.clamp(startPos.X.Offset+delta.X,0,workspace.CurrentCamera.ViewportSize.X-gui.AbsoluteSize.X),
-				0,math.clamp(startPos.Y.Offset+delta.Y,0,workspace.CurrentCamera.ViewportSize.Y-gui.AbsoluteSize.Y))
-		end
-	end)
-end
-
-makeDraggable(frame)
-makeDraggable(ballButton)
-makeDraggable(miniFrame)
+-- WalkSpeed
+local speedBox=Instance.new("TextBox")
+speedBox.Size=UDim2.new(1,-20,0,28)
+speedBox.BackgroundColor3=Color3.fromRGB(60,60,80)
+speedBox.TextColor3=Color3.fromRGB(255,255,255)
+speedBox.Text="16"
+speedBox.Font=Enum.Font.SourceSans
+speedBox.TextSize=14
+speedBox.PlaceholderText="WalkSpeed"
+speedBox.Parent = contentFrames["Main"]
 
 -- Estados
 local states={infinite=false,noclip=false,god=false,speed=16,esp=false}
@@ -201,37 +113,8 @@ local function getHumanoid()
 	return c:FindFirstChildOfClass("Humanoid")
 end
 
--- === BOTÕES MAIN ===
-local btnInfinite = makeButton("Main","Toggle InfiniteJump")
-local btnNoclip = makeButton("Main","Toggle Noclip")
-local btnGodmode = makeButton("Main","Toggle Godmode")
-local btnFly = makeButton("Main","Fly Script")
-local btnBringAll = makeButton("Main","Bring All")
-local btnESP = makeButton("Main","Toggle ESP")
-
--- WalkSpeed TextBox
-local speedBox = Instance.new("TextBox")
-speedBox.Size = UDim2.new(1,-10,0,28)
-speedBox.BackgroundColor3 = Color3.fromRGB(60,60,80)
-speedBox.TextColor3 = Color3.fromRGB(255,255,255)
-speedBox.Text="16"
-speedBox.Font = Enum.Font.SourceSans
-speedBox.TextSize = 14
-speedBox.PlaceholderText="WalkSpeed"
-speedBox.Parent = contentFrames["Main"]
-
-speedBox.FocusLost:Connect(function()
-	local val=tonumber(speedBox.Text)
-	if val and val>0 and val<=500 then
-		states.speed=val
-		local h = getHumanoid()
-		if h then h.WalkSpeed=states.speed end
-	else
-		speedBox.Text=tostring(states.speed)
-	end
-end)
-
 -- InfiniteJump
+local btnInfinite = makeButton("Main","Toggle InfiniteJump")
 local connJump
 btnInfinite.MouseButton1Click:Connect(function()
 	states.infinite = not states.infinite
@@ -239,7 +122,7 @@ btnInfinite.MouseButton1Click:Connect(function()
 	if states.infinite then
 		if connJump then connJump:Disconnect() end
 		connJump = UserInputService.JumpRequest:Connect(function()
-			local h=getHumanoid()
+			local h = getHumanoid()
 			if h and h.Health>0 then h:ChangeState(Enum.HumanoidStateType.Jumping) end
 		end)
 	else
@@ -248,6 +131,7 @@ btnInfinite.MouseButton1Click:Connect(function()
 end)
 
 -- Noclip
+local btnNoclip = makeButton("Main","Toggle Noclip")
 local noclipLoop
 btnNoclip.MouseButton1Click:Connect(function()
 	states.noclip = not states.noclip
@@ -273,6 +157,7 @@ btnNoclip.MouseButton1Click:Connect(function()
 end)
 
 -- Godmode
+local btnGodmode = makeButton("Main","Toggle Godmode")
 local godConn
 btnGodmode.MouseButton1Click:Connect(function()
 	states.god = not states.god
@@ -289,23 +174,26 @@ btnGodmode.MouseButton1Click:Connect(function()
 end)
 
 -- Fly
+local btnFly = makeButton("Main","Fly Script")
 btnFly.MouseButton1Click:Connect(function()
 	loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Gui-Fly-v3-37111"))()
 end)
 
 -- BringAll
+local btnBringAll = makeButton("Main","Bring All")
 btnBringAll.MouseButton1Click:Connect(function()
 	local c = player.Character
 	if not c or not c:FindFirstChild("HumanoidRootPart") then return end
 	local hrp = c.HumanoidRootPart
 	for _,plr in pairs(Players:GetPlayers()) do
-		if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-			plr.Character.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(2,0,2)
+		if plr~=player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			plr.Character.HumanoidRootPart.CFrame = hrp.CFrame*CFrame.new(2,0,2)
 		end
 	end
 end)
 
 -- ESP
+local btnESP = makeButton("Main","Toggle ESP")
 local espParts = {}
 btnESP.MouseButton1Click:Connect(function()
 	states.esp = not states.esp
@@ -314,7 +202,7 @@ btnESP.MouseButton1Click:Connect(function()
 	espParts = {}
 	if states.esp then
 		for _,plr in pairs(Players:GetPlayers()) do
-			if plr ~= player and plr.Character then
+			if plr~=player and plr.Character then
 				local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
 				if hrp then
 					local box = Instance.new("BoxHandleAdornment")
@@ -332,11 +220,8 @@ btnESP.MouseButton1Click:Connect(function()
 	end
 end)
 
--- === BOTÕES EXTRAS ===
+-- Extras
 local btnGiant = makeButton("Extras","Ficar Gigante")
-local btnInvisible = makeButton("Extras","Invisível")
-local btnFling = makeButton("Extras","Fling Script")
-
 btnGiant.MouseButton1Click:Connect(function()
 	local c = player.Character
 	if c then
@@ -348,6 +233,7 @@ btnGiant.MouseButton1Click:Connect(function()
 	end
 end)
 
+local btnInvisible = makeButton("Extras","Invisível")
 btnInvisible.MouseButton1Click:Connect(function()
 	local c = player.Character
 	if c then
@@ -359,8 +245,47 @@ btnInvisible.MouseButton1Click:Connect(function()
 	end
 end)
 
+local btnFling = makeButton("Extras","Fling Script")
 btnFling.MouseButton1Click:Connect(function()
 	loadstring(game:HttpGet("https://rawscripts.net/raw/Fling-Script"))()
+end)
+
+-- Teleport
+local tpBox=Instance.new("TextBox")
+tpBox.Size=UDim2.new(1,-20,0,28)
+tpBox.BackgroundColor3=Color3.fromRGB(60,60,80)
+tpBox.TextColor3=Color3.fromRGB(255,255,255)
+tpBox.PlaceholderText="Digite 3 letras do jogador"
+tpBox.Font=Enum.Font.SourceSans
+tpBox.TextSize=14
+tpBox.Parent = contentFrames["Main"]
+
+local btnTP=makeButton("Main","Teleport to Player")
+btnTP.MouseButton1Click:Connect(function()
+	local text=tpBox.Text:lower()
+	if #text>=3 then
+		for _,plr in pairs(Players:GetPlayers()) do
+			if plr~=player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+				if plr.Name:sub(1,3):lower()==text:sub(1,3) then
+					local hrp=player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+					if hrp then hrp.CFrame=plr.Character.HumanoidRootPart.CFrame+Vector3.new(2,0,2) end
+					break
+				end
+			end
+		end
+	end
+end)
+
+-- WalkSpeed ajuste
+speedBox.FocusLost:Connect(function()
+	local val=tonumber(speedBox.Text)
+	if val and val>0 and val<=500 then
+		states.speed=val
+		local h=player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+		if h then h.WalkSpeed=states.speed end
+	else
+		speedBox.Text=tostring(states.speed)
+	end
 end)
 
 -- Respawn
