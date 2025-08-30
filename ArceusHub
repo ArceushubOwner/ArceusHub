@@ -1,10 +1,9 @@
--- ArceusHub completo atualizado
+-- ArceusHub completo com Infinite Yield
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local Debris = game:GetService("Debris")
-local ContextActionService = game:GetService("ContextActionService")
 
 local player = Players.LocalPlayer
 if not player then return end
@@ -30,34 +29,23 @@ frame.BorderSizePixel = 0
 frame.Parent = screenGui
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0,10)
 
--- Wallpaper / Decal
-local wallpaper = Instance.new("ImageLabel")
-wallpaper.Size = UDim2.new(1,0,1,0)
-wallpaper.Position = UDim2.new(0,0,0,0)
-wallpaper.BackgroundTransparency = 1
-wallpaper.Image = "rbxassetid://132606146905925" -- coloque o id que quiser
-wallpaper.Parent = frame
-wallpaper.ZIndex = 0
-
--- Título
+-- Título (no topo)
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,0,0,30)
 title.Position = UDim2.new(0,0,0,0)
 title.BackgroundTransparency = 1
-title.Text = "👾ArceusHub👾"
+title.Text = "👾ArceusScripts👾"
 title.TextColor3 = Color3.new(1,1,1)
 title.Font = Enum.Font.SourceSansBold
 title.TextSize = 18
-title.ZIndex = 2
 title.Parent = frame
 
--- frame das abas
+-- frame das abas (à esquerda)
 local tabFrame = Instance.new("Frame")
 tabFrame.Size = UDim2.new(0,60,1,-30)
 tabFrame.Position = UDim2.new(0,0,0,30)
 tabFrame.BackgroundTransparency = 1
 tabFrame.Parent = frame
-tabFrame.ZIndex = 2
 
 -- containers de conteúdo
 local contentFrames = {}
@@ -74,7 +62,6 @@ for i, tabName in ipairs(tabs) do
 	btn.Font = Enum.Font.SourceSansBold
 	btn.TextSize = 14
 	btn.Parent = tabFrame
-	btn.ZIndex = 2
 
 	local content = Instance.new("ScrollingFrame")
 	content.Size = UDim2.new(1,-60,1,-30)
@@ -83,7 +70,6 @@ for i, tabName in ipairs(tabs) do
 	content.ScrollBarThickness = 8
 	content.Visible = (tabName == currentTab)
 	content.Parent = frame
-	content.ZIndex = 2
 
 	local layout = Instance.new("UIListLayout", content)
 	layout.Padding = UDim.new(0,6)
@@ -101,7 +87,7 @@ for i, tabName in ipairs(tabs) do
 	contentFrames[tabName] = content
 end
 
--- helper pra criar botões dentro de aba
+-- helper pra criar botões
 local function makeButton(tabName, text)
 	local parent = contentFrames[tabName]
 	local b = Instance.new("TextButton")
@@ -138,7 +124,6 @@ ballButton.Visible = false
 ballButton.Parent = screenGui
 Instance.new("UICorner", ballButton).CornerRadius = UDim.new(1,0)
 
--- animação de cor da bolinha
 spawn(function()
 	local colors = {Color3.fromRGB(10,20,50), Color3.fromRGB(255,105,180), Color3.fromRGB(128,0,128), Color3.fromRGB(255,165,0)}
 	local idx = 1
@@ -185,7 +170,8 @@ end)
 ballButton.MouseButton1Click:Connect(function()
 	ballButton.Visible = false
 	frame.Visible = true
-	TweenService:Create(frame, tweenInfo, {Size = FRAME_SIZE}):Play()
+	local tw = TweenService:Create(frame, tweenInfo, {Size = FRAME_SIZE})
+	tw:Play()
 end)
 
 closeBtn.MouseButton1Click:Connect(function()
@@ -200,32 +186,34 @@ end)
 miniFrame.MouseButton1Click:Connect(function()
 	miniFrame.Visible = false
 	frame.Visible = true
-	TweenService:Create(frame, tweenInfo, {Size = FRAME_SIZE}):Play()
+	local tw = TweenService:Create(frame, tweenInfo, {Size = FRAME_SIZE})
+	tw:Play()
 end)
 
--- Drag helper
+-- Drag
 local function makeDraggable(gui)
-	local dragging, dragStart, startPos, dragInput = false
+	local dragging = false
+	local dragStart, startPos, dragInput
 	gui.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
 			dragStart = input.Position
 			startPos = gui.Position
 			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then dragging=false end
+				if input.UserInputState == Enum.UserInputState.End then dragging = false end
 			end)
 		end
 	end)
 	gui.InputChanged:Connect(function(input)
-		if input.UserInputType==Enum.UserInputType.MouseMovement then
-			dragInput=input
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+			dragInput = input
 		end
 	end)
 	RunService.RenderStepped:Connect(function()
 		if dragging and dragInput then
 			local delta = dragInput.Position - dragStart
-			gui.Position = UDim2.new(0, math.clamp(startPos.X.Offset + delta.X,0,workspace.CurrentCamera.ViewportSize.X-gui.AbsoluteSize.X),
-				0, math.clamp(startPos.Y.Offset + delta.Y,0,workspace.CurrentCamera.ViewportSize.Y-gui.AbsoluteSize.Y))
+			gui.Position = UDim2.new(0, math.clamp(startPos.X.Offset + delta.X, 0, workspace.CurrentCamera.ViewportSize.X - gui.AbsoluteSize.X),
+				0, math.clamp(startPos.Y.Offset + delta.Y, 0, workspace.CurrentCamera.ViewportSize.Y - gui.AbsoluteSize.Y))
 		end
 	end)
 end
@@ -234,8 +222,8 @@ makeDraggable(frame)
 makeDraggable(ballButton)
 makeDraggable(miniFrame)
 
--- === Estados ===
-local states = {infinite=false,noclip=false,god=false,speed=16,esp=false}
+-- Estados
+local states = {infinite=false, noclip=false, god=false, speed=16, esp=false}
 local connJump, noclipLoop, godConn
 local espParts = {}
 
@@ -245,7 +233,7 @@ local function getHumanoid()
 	return c:FindFirstChildOfClass("Humanoid")
 end
 
--- === Main Tab ===
+-- Main tab buttons
 local btnInfinite = makeButton("Main","Toggle InfiniteJump")
 local btnNoclip = makeButton("Main","Toggle Noclip")
 local btnGodmode = makeButton("Main","Toggle Godmode")
@@ -253,16 +241,22 @@ local btnFly = makeButton("Main","Fly Script")
 local btnBringAll = makeButton("Main","Bring All")
 local btnESP = makeButton("Main","Toggle ESP")
 
--- WalkSpeed
-local speedBox = Instance.new("TextBox")
-speedBox.Size = UDim2.new(1,-20,0,28)
-speedBox.BackgroundColor3 = Color3.fromRGB(60,60,80)
-speedBox.TextColor3 = Color3.fromRGB(255,255,255)
-speedBox.Text = tostring(states.speed)
-speedBox.Font = Enum.Font.SourceSans
-speedBox.TextSize = 14
-speedBox.PlaceholderText = "WalkSpeed"
-speedBox.Parent = contentFrames["Main"]
+-- WalkSpeed textbox
+local speedBox = (function()
+	for _,v in ipairs(contentFrames["Main"]:GetChildren()) do
+		if v:IsA("TextBox") and v.PlaceholderText == "WalkSpeed" then return v end
+	end
+	local tb = Instance.new("TextBox")
+	tb.Size = UDim2.new(1,-20,0,28)
+	tb.BackgroundColor3 = Color3.fromRGB(60,60,80)
+	tb.TextColor3 = Color3.fromRGB(255,255,255)
+	tb.Text = tostring(states.speed)
+	tb.Font = Enum.Font.SourceSans
+	tb.TextSize = 14
+	tb.PlaceholderText = "WalkSpeed"
+	tb.Parent = contentFrames["Main"]
+	return tb
+end)()
 
 speedBox.FocusLost:Connect(function()
 	local val = tonumber(speedBox.Text)
@@ -299,16 +293,16 @@ btnNoclip.MouseButton1Click:Connect(function()
 			local c = player.Character
 			if c then
 				for _,p in ipairs(c:GetDescendants()) do
-					if p:IsA("BasePart") and p.Name~="HumanoidRootPart" then p.CanCollide=false end
+					if p:IsA("BasePart") and p.Name ~= "HumanoidRootPart" then p.CanCollide = false end
 				end
 			end
 		end)
 	else
-		if noclipLoop then noclipLoop:Disconnect(); noclipLoop=nil end
+		if noclipLoop then noclipLoop:Disconnect(); noclipLoop = nil end
 		local c = player.Character
 		if c then
 			for _,p in ipairs(c:GetDescendants()) do
-				if p:IsA("BasePart") then p.CanCollide=true end
+				if p:IsA("BasePart") then p.CanCollide = true end
 			end
 		end
 	end
@@ -323,18 +317,19 @@ btnGodmode.MouseButton1Click:Connect(function()
 		h.MaxHealth = math.huge
 		h.Health = h.MaxHealth
 		if godConn then godConn:Disconnect() end
-		godConn = h.HealthChanged:Connect(function() if h.Health<1 then h.Health=h.MaxHealth end end)
+		godConn = h.HealthChanged:Connect(function() if h.Health < 1 then h.Health = h.MaxHealth end end)
 	else
-		if godConn then godConn:Disconnect(); godConn=nil end
-		if h then h.MaxHealth=100;if h.Health>100 then h.Health=100 end end
+		if godConn then godConn:Disconnect(); godConn = nil end
+		if h then h.MaxHealth = 100; if h.Health > 100 then h.Health = 100 end end
 	end
 end)
 
 -- Fly
 btnFly.MouseButton1Click:Connect(function()
-	pcall(function()
+	local ok, err = pcall(function()
 		loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Gui-Fly-v3-37111"))()
 	end)
+	if not ok then warn("Fly load failed:", err) end
 end)
 
 -- BringAll
@@ -343,21 +338,21 @@ btnBringAll.MouseButton1Click:Connect(function()
 	if not c or not c:FindFirstChild("HumanoidRootPart") then return end
 	local hrp = c.HumanoidRootPart
 	for _,plr in pairs(Players:GetPlayers()) do
-		if plr~=player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+		if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
 			plr.Character.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(2,0,2)
 		end
 	end
 end)
 
--- ESP (botão + tecla G)
-local function toggleESP()
+-- ESP
+btnESP.MouseButton1Click:Connect(function()
 	states.esp = not states.esp
 	btnESP.Text = states.esp and "ESP: ON" or "Toggle ESP"
 	for _,p in pairs(espParts) do p:Destroy() end
 	espParts = {}
 	if states.esp then
 		for _,plr in pairs(Players:GetPlayers()) do
-			if plr~=player and plr.Character then
+			if plr ~= player and plr.Character then
 				local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
 				if hrp then
 					local box = Instance.new("BoxHandleAdornment")
@@ -373,12 +368,9 @@ local function toggleESP()
 			end
 		end
 	end
-end
+end)
 
-btnESP.MouseButton1Click:Connect(toggleESP)
-ContextActionService:BindAction("toggleESP", function() toggleESP() end, false, Enum.KeyCode.G)
-
--- Teleport
+-- Teleport (textbox + botão)
 local tpBox = Instance.new("TextBox")
 tpBox.Size = UDim2.new(1,-20,0,28)
 tpBox.BackgroundColor3 = Color3.fromRGB(60,60,80)
@@ -391,10 +383,10 @@ tpBox.Parent = contentFrames["Main"]
 local btnTP = makeButton("Main","Teleport to Player")
 btnTP.MouseButton1Click:Connect(function()
 	local text = (tpBox.Text or ""):lower()
-	if #text>=3 then
+	if #text >= 3 then
 		for _,plr in pairs(Players:GetPlayers()) do
-			if plr~=player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-				if plr.Name:sub(1,3):lower()==text:sub(1,3) then
+			if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+				if plr.Name:sub(1,3):lower() == text:sub(1,3) then
 					local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 					if hrp then hrp.CFrame = plr.Character.HumanoidRootPart.CFrame + Vector3.new(2,0,2) end
 					break
@@ -405,79 +397,17 @@ btnTP.MouseButton1Click:Connect(function()
 end)
 
 -- === Visuais tab ===
-local extraStates = {giant=false,invisible=false}
-local originalSizes, originalTrans = {}, {}
+local extraStates = {giant=false, invisible=false}
+local originalSizes = {}
+local originalTrans = {}
 
-local btnGiant = makeButton("Visuais","Ficar Gigante")
-btnGiant.MouseButton1Click:Connect(function()
-	local c = player.Character
-	if not c then return end
-	extraStates.giant = not extraStates.giant
-	btnGiant.Text = extraStates.giant and "Gigante: ON" or "Ficar Gigante"
-	if extraStates.giant then
-		originalSizes = {}
-		for _,part in ipairs(c:GetDescendants()) do
-			if part:IsA("BasePart") then
-				originalSizes[part] = part.Size
-				part.Size = part.Size * 2
-			end
-		end
-	else
-		for part,sz in pairs(originalSizes) do
-			if part and part:IsA("BasePart") then pcall(function() part.Size = sz end) end
-		end
-		originalSizes = {}
-	end
+-- Infinite Yield button
+local btnIY = makeButton("Visuais","Infinite Yield")
+btnIY.MouseButton1Click:Connect(function()
+	loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 end)
 
-local btnInvisible = makeButton("Visuais","Invisível")
-btnInvisible.MouseButton1Click:Connect(function()
-	local c = player.Character
-	if not c then return end
-	extraStates.invisible = not extraStates.invisible
-	btnInvisible.Text = extraStates.invisible and "Invisível: ON" or "Invisível"
-	if extraStates.invisible then
-		originalTrans = {}
-		for _,part in ipairs(c:GetDescendants()) do
-			if part:IsA("BasePart") then
-				originalTrans[part] = part.Transparency
-				part.Transparency = 1
-			elseif part:IsA("Decal") or part:IsA("Texture") then
-				originalTrans[part] = part.Transparency
-				part.Transparency = 1
-			end
-		end
-	else
-		for part,tr in pairs(originalTrans) do
-			if part and (part:IsA("BasePart") or part:IsA("Decal") or part:IsA("Texture")) then
-				pcall(function() part.Transparency = tr end)
-			end
-		end
-		originalTrans = {}
-	end
-end)
-
-local btnFling = makeButton("Visuais","Fling Script")
-btnFling.MouseButton1Click:Connect(function()
-	local c = player.Character
-	if not c or not c:FindFirstChild("HumanoidRootPart") then return end
-	local hrp = c.HumanoidRootPart
-	for _,plr in pairs(Players:GetPlayers()) do
-		if plr~=player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-			local targetHRP = plr.Character.HumanoidRootPart
-			local dir = (targetHRP.Position - hrp.Position)
-			if dir.Magnitude>0 then
-				local bv = Instance.new("BodyVelocity")
-				bv.MaxForce = Vector3.new(1e5,1e5,1e5)
-				bv.Velocity = dir.unit * 120
-				bv.Parent = targetHRP
-				Debris:AddItem(bv,0.4)
-			end
-		end
-	end
-end)
-
--- Respawn
+-- Respawn handling
 player.CharacterAdded:Connect(function(char)
 	wait(0.5)
 	local h = char:FindFirstChildOfClass("Humanoid")
@@ -487,14 +417,14 @@ player.CharacterAdded:Connect(function(char)
 			h.MaxHealth = math.huge
 			h.Health = h.MaxHealth
 			if godConn then godConn:Disconnect() end
-			godConn = h.HealthChanged:Connect(function() if h.Health<1 then h.Health=h.MaxHealth end end)
+			godConn = h.HealthChanged:Connect(function() if h.Health < 1 then h.Health = h.MaxHealth end end)
 		end
 	end
 end)
 
 -- inicial: mostra Main
 for name,content in pairs(contentFrames) do
-	content.Visible = (name=="Main")
+	content.Visible = (name == "Main")
 end
 
-print("ArceusHub atualizado carregado!")
+print("ArceusHub carregado.")
